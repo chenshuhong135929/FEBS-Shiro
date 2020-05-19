@@ -58,6 +58,12 @@
 
       form.on('submit(user-add-form-submit)', function (data) {
        // alert( JSON.stringify(data.field));
+        if(isEmpty(data.field.memoriesUrl)){
+          layer.msg('首页轮播图片必须上传哦！', function(){
+          //关闭后的操作
+          });
+          return false;
+        }
         febs.post(ctx + 'memories/add',data.field, function () {
           layer.closeAll();
           $('#febs-user').find('#query').click();
@@ -80,5 +86,11 @@
 
 
 
-
+    function isEmpty(obj){
+      if(typeof obj == "undefined" || obj == null || obj == ""){
+        return true;
+      }else{
+        return false;
+      }
+    }
 </script>

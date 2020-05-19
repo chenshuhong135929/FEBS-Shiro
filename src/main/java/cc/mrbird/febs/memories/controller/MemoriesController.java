@@ -9,6 +9,7 @@ import cc.mrbird.febs.common.entity.QueryRequest;
 import cc.mrbird.febs.common.utils.UUIDUtil;
 import cc.mrbird.febs.memories.entity.Memories;
 import cc.mrbird.febs.memories.service.IMemoriesService;
+import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.wuwenze.poi.ExcelKit;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
@@ -17,15 +18,13 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -80,11 +79,11 @@ public class MemoriesController extends BaseController {
     }
 
     @ControllerEndpoint(operation = "删除首页图片", exceptionMessage = "删除首页图片失败")
-    @GetMapping("memories/delete")
+    @GetMapping("memories/delete/{ids}")
     @ResponseBody
     @RequiresPermissions("memories:delete")
-    public FebsResponse deleteMemories(Memories memories) {
-        this.memoriesService.deleteMemories(memories);
+    public FebsResponse deleteMemories(@NotBlank(message = "{required}") @PathVariable String ids) {
+        this.memoriesService.deleteMemories(ids.split(StringPool.COMMA));
         return new FebsResponse().success();
     }
 

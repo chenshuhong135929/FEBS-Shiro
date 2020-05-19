@@ -48,8 +48,14 @@ public interface IMemoriesService extends IService<Memories> {
 
     /**
      * 删除
-     *
-     * @param memories memories
+     * @param ids
      */
-    void deleteMemories(Memories memories);
+    void deleteMemories(String[]  ids );
+
+    /**
+     * 获取详情
+     * @param id
+     * @return
+     */
+    Memories  findId(String id);
 }

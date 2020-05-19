@@ -284,6 +284,7 @@
 
         function getQueryParams() {
             var createTime = $searchForm.find('input[name="createTime"]').val();
+            alert(createTime)
             if (createTime) {
                 createTimeFrom = createTime.split(' - ')[0];
                 createTimeTo = createTime.split(' - ')[1];

@@ -4,6 +4,9 @@ import cc.mrbird.febs.common.entity.QueryRequest;
 import cc.mrbird.febs.memories.entity.Memories;
 import cc.mrbird.febs.memories.mapper.MemoriesMapper;
 import cc.mrbird.febs.memories.service.IMemoriesService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
@@ -14,6 +17,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -29,9 +34,23 @@ public class MemoriesServiceImpl extends ServiceImpl<MemoriesMapper, Memories> i
 
     private final MemoriesMapper memoriesMapper;
 
+    @Value("${web.upload-path}")
+    private String uploadPath;
     @Override
     public IPage<Memories> findMemoriess(QueryRequest request, Memories memories) {
-        LambdaQueryWrapper<Memories> queryWrapper = new LambdaQueryWrapper<>();
+        QueryWrapper<Memories> queryWrapper = new QueryWrapper<>();
+        if(StringUtils.isNotEmpty(memories.getMemoriesName())){
+            queryWrapper.like("memories_name",memories.getMemoriesName());
+        }
+        if (StringUtils.isNotBlank(memories.getCreateTimeFrom())) {
+            memories.setCreateTimeFrom(memories.getCreateTimeFrom() + " 00:00:00");
+            memories.setCreateTimeTo(memories.getCreateTimeTo() + " 23:59:59");
+            queryWrapper.ge("memories_date",memories.getCreateTimeFrom());
+            queryWrapper.le("memories_date",memories.getCreateTimeTo());
+
+        }
+
+
         // TODO 设置查询条件
         Page<Memories> page = new Page<>(request.getPageNum(), request.getPageSize());
         return this.page(page, queryWrapper);
@@ -58,9 +77,20 @@ public class MemoriesServiceImpl extends ServiceImpl<MemoriesMapper, Memories> i
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void deleteMemories(Memories memories) {
-        LambdaQueryWrapper<Memories> wrapper = new LambdaQueryWrapper<>();
-	    // TODO 设置删除条件
-	    this.remove(wrapper);
+    public void deleteMemories(String []  ids) {
+        List<String> list = Arrays.asList(ids);
+        for(String id :list){
+            Memories memories = this.findId(id);
+            //对原有的图片进行删除
+            String path = uploadPath.replace("mes/", "");
+            File files = new File(path+memories.getMemoriesUrl());
+            files.delete();
+        }
+        this.removeByIds(list);
 	}
+
+    @Override
+    public Memories findId(String id) {
+        return memoriesMapper.findId(id);
+    }
 }

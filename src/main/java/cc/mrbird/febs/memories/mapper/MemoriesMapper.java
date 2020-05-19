@@ -11,4 +11,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface MemoriesMapper extends BaseMapper<Memories> {
 
+  Memories  findId(String id);
+
 }
